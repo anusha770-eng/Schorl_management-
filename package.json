@@ -1,0 +1,20 @@
+{
+  "name": "aetheris-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "scripts": {
+    "dev": "npm --workspace=apps/web run dev",
+    "build": "npm --workspace=packages/shared run build && npm --workspace=packages/database run build && npm --workspace=apps/web run build",
+    "db:generate": "npm --workspace=packages/database run generate",
+    "db:push": "npm --workspace=packages/database run push",
+    "db:seed": "npm --workspace=packages/database run seed",
+    "test": "npm --workspace=apps/web run test"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.2"
+  }
+}
