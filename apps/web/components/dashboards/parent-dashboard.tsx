@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -9,9 +9,6 @@ import {
   Bus,
   CheckCircle2,
   CreditCard,
-  Bell,
-  HeartHandshake,
-  Calendar,
   Sparkles,
 } from "lucide-react";
 
@@ -21,6 +18,16 @@ interface ParentDashboardProps {
 
 export function ParentDashboard({ onNavigate }: ParentDashboardProps) {
   const [selectedChild, setSelectedChild] = useState<"ananya" | "arjun">("ananya");
+  const [metrics, setMetrics] = useState<any>(null);
+
+  useEffect(() => {
+    fetch("/api/dashboard/metrics")
+      .then((r) => r.json())
+      .then((data) => setMetrics(data))
+      .catch(() => {});
+  }, []);
+
+  const totalPaid = metrics?.financials?.totalPaid ?? 45750;
 
   return (
     <div className="space-y-6">
@@ -80,7 +87,7 @@ export function ParentDashboard({ onNavigate }: ParentDashboardProps) {
           </div>
           <CardDescription className="text-xs">
             {selectedChild === "ananya"
-              ? "Ananya scanned into Bus Route 04 at Stop #2 (HSR Layout) at 07:38 AM."
+              ? "Ananya scanned into Bus Route 04 at Stop #2 (HSR Layout) with verified attendant manifest."
               : "Arjun arrived safely at campus at 08:12 AM."}
           </CardDescription>
         </CardHeader>
@@ -106,7 +113,6 @@ export function ParentDashboard({ onNavigate }: ParentDashboardProps) {
 
       {/* Academic & Financial Split Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Academic Progress */}
         <Card className="border border-surface-border bg-surface p-5 space-y-4">
           <div className="flex items-center justify-between">
             <h3 className="font-semibold text-sm text-foreground flex items-center gap-2">
@@ -128,7 +134,6 @@ export function ParentDashboard({ onNavigate }: ParentDashboardProps) {
           </Button>
         </Card>
 
-        {/* Empathetic Fee Health */}
         <Card className="border border-surface-border bg-surface p-5 space-y-4">
           <div className="flex items-center justify-between">
             <h3 className="font-semibold text-sm text-foreground flex items-center gap-2">
@@ -138,7 +143,7 @@ export function ParentDashboard({ onNavigate }: ParentDashboardProps) {
             <Badge variant="present" className="text-xs">Term 2 Settled</Badge>
           </div>
           <p className="text-xs text-foreground/70 leading-relaxed">
-            All current dues are fully paid. Flexible 2-part split installment options are available for Term 3 (due Jan 2027) upon request.
+            Current dues are fully settled. Total cleared across invoices: ₹{totalPaid.toLocaleString("en-IN")}. Flexible split installment options are available for upcoming terms.
           </p>
           <Button
             size="sm"

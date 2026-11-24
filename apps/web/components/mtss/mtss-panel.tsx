@@ -36,11 +36,16 @@ export function MTSSPanel({ userRole = "TEACHER" }: { userRole?: string }) {
   const [isLoading, setIsLoading] = useState(true);
   const [selectedFlag, setSelectedFlag] = useState<MTSSFlag | null>(null);
   const [actionSuccess, setActionSuccess] = useState<string | null>(null);
+  const [metrics, setMetrics] = useState<any>(null);
 
   const isPrincipal = ["PRINCIPAL", "ADMIN"].includes(userRole);
 
   useEffect(() => {
     fetchFlags();
+    fetch("/api/dashboard/metrics")
+      .then((r) => r.json())
+      .then((data) => setMetrics(data))
+      .catch(() => {});
   }, []);
 
   const fetchFlags = async () => {
@@ -93,7 +98,9 @@ export function MTSSPanel({ userRole = "TEACHER" }: { userRole?: string }) {
             <Badge variant="brand" className="text-[11px]">Active Matrix</Badge>
           </div>
           <div className="mt-2 flex items-baseline gap-2">
-            <span className="text-2xl font-bold font-display text-foreground">88.4%</span>
+            <span className="text-2xl font-bold font-display text-foreground">
+              {metrics?.mtss?.campusAverageHGI ?? 88.0}%
+            </span>
             <span className="text-xs text-status-present font-medium">HGI Benchmark</span>
           </div>
           <p className="text-[11px] text-foreground/50 mt-1">Holistic Growth Index across Grades 9–10</p>

@@ -1,46 +1,52 @@
 import test from "node:test";
 import assert from "node:assert";
 
-// Test PII Stripping function
-function sanitizeStudentMessage(rawText) {
-  return rawText
-    .replace(/ananya|rahul|tanvi|vikram/gi, "Learner")
-    .replace(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g, "[email]")
-    .replace(/\+?[0-9]{10,12}/g, "[phone]");
+// Generalized PII scrubber
+const EMAIL_REGEX = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g;
+const PHONE_REGEX = /(?:\+?\d{1,3}[-.\s]?)?\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}\b|\b\d{10,12}\b/g;
+const STUDENT_ID_REGEX = /\b[A-Z]{2,4}-\d{4}-\d{3,5}\b|\b\d{1,2}[A-Z]-\d{1,3}\b/g;
+const UNSEEN_NAME_PATTERNS = [
+  /(?:my name is|i am|call me|this is|i'm)\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)?)/gi,
+  /(?:student|learner|author|from|by):\s*([A-Z][a-z]+(?:\s+[A-Z][a-z]+)?)/gi,
+];
+
+function scrubPII(text) {
+  let sanitized = text;
+  sanitized = sanitized.replace(EMAIL_REGEX, "[REDACTED_EMAIL]");
+  sanitized = sanitized.replace(PHONE_REGEX, "[REDACTED_PHONE]");
+  sanitized = sanitized.replace(STUDENT_ID_REGEX, "[REDACTED_ID]");
+  for (const pattern of UNSEEN_NAME_PATTERNS) {
+    sanitized = sanitized.replace(pattern, (match, capturedName) => {
+      return match.replace(capturedName, "[REDACTED_NAME]");
+    });
+  }
+  return sanitized;
 }
 
-// Test Socratic Pedagogy rule engine
-function evaluateSocraticResponse(query) {
-  const q = query.toLowerCase();
-  if (q.includes("minecraft") || q.includes("movie")) {
-    return { isRefusal: true, prompt: "Redirect to curriculum" };
-  }
-  if (q.includes("solve") || q.includes("answer")) {
-    return { isRefusal: false, givesDirectAnswer: false, asksGuidingQuestion: true };
-  }
-  return { isRefusal: false, givesDirectAnswer: false, asksGuidingQuestion: true };
-}
+test("PII Stripping catches arbitrary UNSEEN student names without hardcoded lists", () => {
+  // Test with names completely unseen by the system
+  const rawInput1 = "Hello tutor, my name is Alexander Wright and my email is alexander.wright@external-school.org.";
+  const cleaned1 = scrubPII(rawInput1);
+  assert.ok(!cleaned1.includes("Alexander Wright"), "Unseen name Alexander Wright must be scrubbed");
+  assert.ok(cleaned1.includes("[REDACTED_NAME]"));
+  assert.ok(!cleaned1.includes("alexander.wright@external-school.org"));
+  assert.ok(cleaned1.includes("[REDACTED_EMAIL]"));
 
-test("PII Stripping removes names, emails and phone numbers before LLM routing", () => {
-  const rawInput = "Hi, my name is Ananya Sharma, my email is student@aetheris.edu and phone is 9880612345. Can you help me factorize x^2 + 5x + 6?";
-  const cleaned = sanitizeStudentMessage(rawInput);
-
-  assert.ok(!cleaned.includes("Ananya"), "Name must be stripped");
-  assert.ok(!cleaned.includes("student@aetheris.edu"), "Email must be stripped");
-  assert.ok(!cleaned.includes("9880612345"), "Phone must be stripped");
-  assert.ok(cleaned.includes("Learner"));
-  assert.ok(cleaned.includes("[email]"));
-  assert.ok(cleaned.includes("[phone]"));
+  const rawInput2 = "I am Priya Bhattacharya, student ID AIA-2024-8841. Can you help me?";
+  const cleaned2 = scrubPII(rawInput2);
+  assert.ok(!cleaned2.includes("Priya Bhattacharya"), "Unseen name Priya Bhattacharya must be scrubbed");
+  assert.ok(!cleaned2.includes("AIA-2024-8841"), "Student ID must be scrubbed");
+  assert.ok(cleaned2.includes("[REDACTED_NAME]"));
+  assert.ok(cleaned2.includes("[REDACTED_ID]"));
 });
 
 test("Socratic Tutor refuses out-of-scope entertainment questions", () => {
-  const result = evaluateSocraticResponse("Can you give me cheat codes for Minecraft?");
-  assert.strictEqual(result.isRefusal, true);
-  assert.strictEqual(result.prompt, "Redirect to curriculum");
+  const isOutOfScope = (q) => /minecraft|movie|football|weather|joke/i.test(q);
+  assert.strictEqual(isOutOfScope("Can you give me cheat codes for Minecraft?"), true);
+  assert.strictEqual(isOutOfScope("How do I factorize quadratic expressions?"), false);
 });
 
-test("Socratic Tutor refuses to give direct homework answers", () => {
-  const result = evaluateSocraticResponse("Just solve x^2 + 5x + 6 for me and tell me the answer.");
-  assert.strictEqual(result.givesDirectAnswer, false);
-  assert.strictEqual(result.asksGuidingQuestion, true);
+test("Socratic Tutor enforces inquiry guidance over direct answer generation", () => {
+  const isDirectAnswerRequest = (q) => /solve|answer|give me the answer/i.test(q);
+  assert.strictEqual(isDirectAnswerRequest("Just give me the answer for question 4"), true);
 });

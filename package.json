@@ -12,6 +12,7 @@
     "db:generate": "npm --workspace=packages/database run generate",
     "db:push": "npm --workspace=packages/database run push",
     "db:seed": "npm --workspace=packages/database run seed",
+    "reset-demo": "npm --workspace=packages/database run push && npm --workspace=packages/database run seed",
     "test": "npm --workspace=apps/web run test"
   },
   "devDependencies": {

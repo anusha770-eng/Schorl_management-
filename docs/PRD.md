@@ -7,9 +7,14 @@
 ## 1. Executive Summary & Vision
 
 ### 1.1 The Vision
-**Aetheris School OS** is the world’s first unified, human-centered School Management System (SMS) designed to move schools from **reactive compliance logging to proactive learning intelligence**. 
+**Aetheris School OS** is a unified, human-centered School Management System (SMS) designed to move schools from **reactive compliance logging to proactive learning intelligence**.
 
-Built for K-12 and secondary schools (with native architecture supporting both international curricula and regional school ecosystems like CBSE/ICSE/State boards), Aetheris unifies all core administrative operations—admissions, attendance, timetables, gradebooks, fees, library, transport, notices—with a breakthrough **Proactive Intervention Engine (MTSS)**, a **Curriculum-Grounded Socratic AI Tutor**, an **Autonomous Morning Substitute Dispatcher**, and a **Dual-Verification Safe Transport Ecosystem**.
+*Positioning Disclaimer & Market Grounding:*
+To our knowledge, based on market research and searches conducted on November 24, 2026 across global and regional education software:
+- Specialized analytics tools like **Panorama Education** (with *Ditto*) and **Branching Minds** (with *Dottie*) provide MTSS progress tracking and intervention logs, but are separate, third-party software products that do not manage school timetables, class registers, bus routes, fee billing, or admissions.
+- AI tutors like Khan Academy's **Khanmigo** provide Socratic learning, but exist as standalone student apps completely disconnected from a school's internal attendance, MTSS records, or teacher substitute matrices.
+- SIS vendors (such as **PowerSchool's PowerBuddy** and **Infinite Campus AI**) have announced generative AI roadmaps, but focus primarily on administrative drafting (lesson plans and emails) rather than closing the loop between real-time operational telemetry, MTSS tiered intervention, and textbook-grounded Socratic student coaching.
+- Aetheris brings these historically siloed domains into a single cohesive, privacy-first platform.
 
 ### 1.2 The Signature Value Proposition
 Unlike legacy systems (PowerSchool, Blackbaud, Entab, Fedena) that function as static data silos, and unlike lightweight classroom apps (Google Classroom, ClassDojo) that lack institutional ERP backbones, Aetheris establishes a closed-loop operational ecosystem:

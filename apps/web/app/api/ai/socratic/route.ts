@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@aetheris/database";
 import { requireAuth } from "@/lib/auth";
-import { aiTutorRateLimiter } from "@aetheris/shared";
+import { aiTutorRateLimiter, scrubPII } from "@aetheris/shared";
 
 export async function POST(req: Request) {
   try {
@@ -33,13 +33,10 @@ export async function POST(req: Request) {
       ? `Curriculum Unit: ${curriculum.title}\nKey Concepts: ${curriculum.keyConcepts}\nApproved Textbook Knowledge Body:\n${curriculum.contentBody}`
       : "Standard Secondary Mathematics Curriculum (Algebra, Linear Equations, Factoring Quadratic Equations).";
 
-    // 2. Anonymize PII - strictly strip names, emails, phone numbers
+    // 2. Anonymize PII - strictly strip arbitrary unseen names, emails, phone numbers, student IDs
     const anonymizedMessages = messages.map((m: any) => ({
       role: m.role === "assistant" ? "assistant" : "user",
-      content: m.content
-        .replace(/ananya|rahul|tanvi|vikram/gi, "Learner")
-        .replace(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g, "[email]")
-        .replace(/\+?[0-9]{10,12}/g, "[phone]"),
+      content: scrubPII(m.content || "").sanitized,
     }));
 
     const lastUserMessage = anonymizedMessages[anonymizedMessages.length - 1]?.content || "";
