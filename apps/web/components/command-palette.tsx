@@ -84,6 +84,17 @@ export function CommandPalette({
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && filtered.length > 0) {
+                const item = filtered[0];
+                if (item.action) {
+                  item.action();
+                } else {
+                  onNavigate(item.id);
+                }
+                onClose();
+              }
+            }}
             placeholder="Type a command or search students, subjects, actions... (ESC to close)"
             className="w-full bg-transparent text-sm text-foreground placeholder:text-foreground/40 focus:outline-none"
             autoFocus

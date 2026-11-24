@@ -24,6 +24,8 @@ import { SmartGradebook } from "@/components/gradebook/smart-gradebook";
 import { SafeRideView } from "@/components/transport/saferide-view";
 import { FeeHealthView } from "@/components/fees/fee-health-view";
 import { TrilingualNotices } from "@/components/notices/trilingual-notices";
+import { ErrorBoundary } from "@/components/error-boundary";
+import { AlertCircle, X } from "lucide-react";
 
 export default function App() {
   const [currentRole, setCurrentRole] = useState<string>("TEACHER");
@@ -31,6 +33,8 @@ export default function App() {
   const [currentTab, setCurrentTab] = useState<string>("dashboard");
   const [currentLang, setCurrentLang] = useState<string>("en");
   const [isCommandOpen, setIsCommandOpen] = useState<boolean>(false);
+  const [switchError, setSwitchError] = useState<string | null>(null);
+  const [isSwitching, setIsSwitching] = useState<boolean>(false);
 
   useEffect(() => {
     // Initial sync with session if available
@@ -41,12 +45,19 @@ export default function App() {
           setCurrentRole(data.user.role);
           setUserName(data.user.name);
           if (data.user.languagePref) setCurrentLang(data.user.languagePref);
+        } else {
+          // Initialize default teacher demo session if not already logged in
+          handleRoleSwitch("TEACHER");
         }
       })
-      .catch(() => {});
+      .catch((err) => {
+        console.error("Initial session sync error:", err);
+      });
   }, []);
 
   const handleRoleSwitch = async (role: string) => {
+    setIsSwitching(true);
+    setSwitchError(null);
     try {
       const res = await fetch("/api/auth/demo-switch", {
         method: "POST",
@@ -54,13 +65,19 @@ export default function App() {
         body: JSON.stringify({ role }),
       });
       const data = await res.json();
-      if (res.ok && data.user) {
+      if (!res.ok) {
+        throw new Error(data.error || "Failed to switch role");
+      }
+      if (data.user) {
         setCurrentRole(data.user.role);
         setUserName(data.user.name);
         setCurrentTab("dashboard");
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error("Failed to switch role", err);
+      setSwitchError(err.message || "Failed to switch role");
+    } finally {
+      setIsSwitching(false);
     }
   };
 
@@ -128,6 +145,8 @@ export default function App() {
         onRoleSwitch={handleRoleSwitch}
         currentLang={currentLang}
         onLangSwitch={setCurrentLang}
+        switchError={switchError}
+        isSwitching={isSwitching}
       />
 
       {/* Main Workspace Body */}
@@ -141,7 +160,26 @@ export default function App() {
 
         {/* Content Pane */}
         <main className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8 max-w-7xl mx-auto w-full">
-          {renderCurrentView()}
+          {/* Visible Error Banner for Persona Switching or API Failures */}
+          {switchError && (
+            <div className="mb-4 p-3 bg-status-absent-bg border border-status-absent/30 rounded-xl text-status-absent text-xs flex items-center justify-between shadow-subtle animate-in fade-in">
+              <div className="flex items-center gap-2">
+                <AlertCircle className="w-4 h-4 shrink-0" />
+                <span><strong>Role Switch Notice:</strong> {switchError}</span>
+              </div>
+              <button
+                onClick={() => setSwitchError(null)}
+                className="p-1 hover:bg-status-absent/10 rounded-lg text-status-absent"
+                title="Dismiss"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          )}
+
+          <ErrorBoundary>
+            {renderCurrentView()}
+          </ErrorBoundary>
         </main>
       </div>
 

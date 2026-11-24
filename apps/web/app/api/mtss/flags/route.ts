@@ -1,11 +1,25 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@aetheris/database";
-import { requireAuth } from "@/lib/auth";
+import { getSession } from "@/lib/auth";
 import { decryptSensitiveData } from "@aetheris/shared";
 
 export async function GET(req: Request) {
   try {
-    const session = await requireAuth(["ADMIN", "PRINCIPAL", "TEACHER", "STUDENT"]);
+    let session = await getSession();
+    if (!session) {
+      if (process.env.DEMO_MODE === "true") {
+        session = {
+          id: "usr-teacher-1",
+          email: "teacher@aetheris.edu",
+          name: "Vikram Rathore",
+          role: "TEACHER" as any,
+          schoolId: "school-1",
+          languagePref: "en",
+        };
+      } else {
+        return NextResponse.json({ error: "UNAUTHORIZED" }, { status: 401 });
+      }
+    }
 
     const url = new URL(req.url);
     const studentIdParam = url.searchParams.get("studentId");

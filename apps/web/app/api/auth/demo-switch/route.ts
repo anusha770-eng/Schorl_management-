@@ -4,6 +4,13 @@ import { createSession } from "@/lib/auth";
 
 export async function POST(req: Request) {
   try {
+    if (process.env.NODE_ENV === "production" && process.env.DEMO_MODE !== "true") {
+      return NextResponse.json(
+        { error: "Demo persona switching is disabled in production without DEMO_MODE=true" },
+        { status: 403 }
+      );
+    }
+
     const { role } = await req.json();
 
     // Map role to seeded demo user email

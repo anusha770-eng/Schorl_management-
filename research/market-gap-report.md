@@ -46,7 +46,8 @@ The table below benchmarks core functional coverage and identifies recurring sys
 | **openSIS** | Open-Source & Commercial Cloud | Standard US SIS workflows; affordable entry tiers. | Abrupt tier deprecations causing data loss reports; gated customer support; complex report builder requiring SQL knowledge. | 3.2/5.0; Negative reviews regarding transition from free to paid tiers. |
 | **ClassDojo** | Mobile/Web Social Feed; K-8 Schools | Intuitive parent messaging; photo sharing; high student engagement. | Gamified behavior tracking causes public shaming & anxiety; blurred 24/7 boundaries for teachers; aggressive freemium monetization upselling parents. | 4.0/5.0; Parents and neurodivergent advocates highlight psychological harm. |
 | **Schoology** | Enterprise LMS; Middle & High Schools | Rubrics; assignment workflows; standards mastery tracking. | Clunky folder/navigation UX; grade sync discrepancies with district SIS (PowerSchool); duplicate assignment entry loops. | 3.6/5.0; Frequent sync mismatches causing student grade panic. |
-| **Google Classroom** | Lightweight Cloud Hub; Global Schools | Free/low barrier; intuitive assignment posting; Google Drive integration. | Not a real SIS; lacks advanced grade calculations, attendance laws, fee management, or student medical/counseling profiles; paywalled SIS sync. | 4.5/5.0 as an assignment hub; 2.0/5.0 as an institutional management system. |
+| **Google Classroom** | Lightweight Cloud Hub; Global Schools | Free/low barrier; intuitive assignment posting; Google Drive integration. | Not a real SIS; lacks advanced grade calculations, attendance laws, fee management, or student medical/counseling profiles; paywalled SIS sync. | 4.5/5.0 as an assignment hub; 2.0/5.0 as an institutional managemen
+t system. |
 
 ---
 

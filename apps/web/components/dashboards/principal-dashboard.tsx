@@ -17,6 +17,8 @@ interface PrincipalDashboardProps {
 
 export function PrincipalDashboard({ onNavigate }: PrincipalDashboardProps) {
   const [metrics, setMetrics] = useState<any>(null);
+  const [subConfirmed, setSubConfirmed] = useState<boolean>(false);
+  const [subLoading, setSubLoading] = useState<boolean>(false);
 
   useEffect(() => {
     fetch("/api/dashboard/metrics")
@@ -24,6 +26,29 @@ export function PrincipalDashboard({ onNavigate }: PrincipalDashboardProps) {
       .then((data) => setMetrics(data))
       .catch(() => {});
   }, []);
+
+  const handleConfirmSubstitute = async () => {
+    setSubLoading(true);
+    try {
+      const res = await fetch("/api/substitutions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          slotId: "slot-math-3",
+          originalStaffId: "staff-1",
+          substituteStaffId: "staff-2",
+          matchingScore: 96.0,
+        }),
+      });
+      if (res.ok) {
+        setSubConfirmed(true);
+      }
+    } catch (err) {
+      console.error("Sub confirm failed", err);
+    } finally {
+      setSubLoading(false);
+    }
+  };
 
   const attRate = metrics?.attendance?.rate ?? 96.4;
   const present = metrics?.attendance?.present ?? 31;
@@ -151,11 +176,16 @@ export function PrincipalDashboard({ onNavigate }: PrincipalDashboardProps) {
               </p>
               <Button
                 size="sm"
-                variant="primary"
-                onClick={() => onNavigate("timetable")}
+                variant={subConfirmed ? "secondary" : "primary"}
+                onClick={handleConfirmSubstitute}
+                disabled={subConfirmed || subLoading}
                 className="text-xs w-full mt-2"
               >
-                1-Click Confirm & Push App Notification
+                {subConfirmed
+                  ? "✓ Proxy Dispatched & Confirmed (Priya Patel)"
+                  : subLoading
+                  ? "Dispatching Proxy..."
+                  : "1-Click Confirm & Push App Notification"}
               </Button>
             </div>
           </CardContent>

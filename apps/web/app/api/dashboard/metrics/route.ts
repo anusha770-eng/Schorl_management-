@@ -1,10 +1,24 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@aetheris/database";
-import { requireAuth } from "@/lib/auth";
+import { getSession } from "@/lib/auth";
 
 export async function GET(req: Request) {
   try {
-    const session = await requireAuth();
+    let session = await getSession();
+    if (!session) {
+      if (process.env.DEMO_MODE === "true") {
+        session = {
+          id: "usr-teacher-1",
+          email: "teacher@aetheris.edu",
+          name: "Vikram Rathore",
+          role: "TEACHER" as any,
+          schoolId: "school-1",
+          languagePref: "en",
+        };
+      } else {
+        return NextResponse.json({ error: "UNAUTHORIZED" }, { status: 401 });
+      }
+    }
     const today = new Date().toISOString().split("T")[0];
 
     // 1. Total Students & Class 9-A Counts

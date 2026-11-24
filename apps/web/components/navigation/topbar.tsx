@@ -13,6 +13,8 @@ interface TopbarProps {
   onRoleSwitch: (role: string) => void;
   currentLang: string;
   onLangSwitch: (lang: string) => void;
+  switchError?: string | null;
+  isSwitching?: boolean;
 }
 
 export function Topbar({
@@ -21,6 +23,8 @@ export function Topbar({
   onRoleSwitch,
   currentLang,
   onLangSwitch,
+  switchError,
+  isSwitching,
 }: TopbarProps) {
   const { theme, toggleTheme } = useTheme();
   const [showRoleMenu, setShowRoleMenu] = useState(false);
@@ -57,6 +61,7 @@ export function Topbar({
         {/* 1-Click Demo Role Switcher */}
         <div className="relative">
           <button
+            data-testid="persona-switcher"
             onClick={() => {
               setShowRoleMenu(!showRoleMenu);
               setShowLangMenu(false);
@@ -65,9 +70,15 @@ export function Topbar({
           >
             <UserCheck className="w-3.5 h-3.5" />
             <span className="hidden md:inline">Demo Persona:</span>
-            <span className="font-semibold">{currentRole}</span>
+            <span className="font-semibold">{isSwitching ? "Switching..." : currentRole}</span>
             <ChevronDown className="w-3 h-3 ml-0.5 opacity-60" />
           </button>
+
+          {switchError && (
+            <div className="absolute left-0 mt-1 px-2.5 py-1 rounded-md bg-status-absent-bg border border-status-absent/40 text-status-absent text-[10px] whitespace-nowrap z-50 flex items-center gap-1 shadow-card">
+              <span>⚠️ {switchError}</span>
+            </div>
+          )}
 
           {showRoleMenu && (
             <div className="absolute left-0 mt-2 w-64 rounded-xl border border-surface-border bg-surface-elevated shadow-elevated p-1.5 z-50 animate-in fade-in zoom-in-95">
